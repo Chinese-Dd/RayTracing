@@ -1,6 +1,5 @@
 #include "common.h"
 #include "CRAY.h"
-using namespace std;
 Cray::Cray(GVector3 origin, GVector3 direction)
 {
 	m_origin = origin;

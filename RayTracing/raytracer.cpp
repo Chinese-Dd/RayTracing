@@ -1,20 +1,21 @@
 #include"raytracer.h"
 #include "common.h"
+#include <omp.h>
 #include "picLibrary/pic.h"
-tracer::tracer()
+Tracer::Tracer()
 {
 	m_scene = new Scene();
 }
-tracer::~tracer()
+Tracer::~Tracer()
 {
 	delete m_scene;
 }
 
-GVector3 tracer::trace(Cray ray, int depth)
+GVector3 Tracer::trace(Cray ray, int depth)
 {
-	float distance = INFINITY;/*初始化无限大距离*/
+	float distance =BIG;/*初始化无限大距离*/
 	int dep = depth;/*递归深度*/
-	Object* aim;/*交点物体*/
+	Object* aim = NULL;/*交点物体*/
 	GVector3 n;/*交点处的法向量*/
 	GVector3 point;/*交点*/
 	GVector3 dire_eye;/*交点到眼睛的方向*/
@@ -34,7 +35,7 @@ GVector3 tracer::trace(Cray ray, int depth)
 			res_hit = res;
 		}
 	}
-	if (distance != INFINITY)
+	if (distance != BIG)
 	{
 	    point = ray.get_Point(distance);/*获取交点*/
 	    n = aim->get_normal(point);/*交点处的法向量*/
@@ -54,7 +55,7 @@ GVector3 tracer::trace(Cray ray, int depth)
 
 		Cray dire_ls_ray(point + dire_ls*SMALL, dire_ls);/*构造交点到光源的射线*/
 		float shade = 1.0f;/*初始阴影,1.0表示交点不在阴影中*/
-		float distance = INFINITY;/*初始化无限大距离*/
+		float distance = BIG;/*初始化无限大距离*/
 		/*测试是否有物体遮挡住光源*/
 		for (int k = 0; k < m_scene->get_object_num(); k++)
 		{
@@ -98,16 +99,14 @@ GVector3 tracer::trace(Cray ray, int depth)
 		hit_color = hit_color + trace(Cray(point + refl*0.0001f, refl), ++dep);
 	}
 }
-	else
-	{
-		return Color(1.0,1.0,1.0);
-	}
+	
 	return hit_color;/*没有相交时，是初始黑色；有相交时，是交点处的颜色*/
 }
-void tracer::render()
+void Tracer::render()
 {
 	eye.set(0.0f, 0.0f, 4.0f);/*眼睛位置*/
 	m_scene->init_scene();/*读入场景*/
+
 
 	  /*虚拟屏幕坐标增量*/
 	  float dx = (float)(VIEW_WIDTH / ImageWidth); //试验2,是否需要static
@@ -133,7 +132,7 @@ void tracer::render()
 			screen_color[i][j] = trace(ray, 1);
 		}
 		percent = (i *10)% 64;//等价于i%6.4
-		if (percent == 0)
+		if (percent == 0.0f)
 		{
 			char t = 8;/*退格,\b的ASCII码,\b表示将输出位置左移一位*/
 			for (int k = 0; k<11; k++)
@@ -145,7 +144,7 @@ void tracer::render()
 	}
 }
 
-void tracer::save_jpg()
+void Tracer::save_jpg()
 {
 	for (int i = 0; i< ImageWidth; i++)
 	{

@@ -1,5 +1,6 @@
-#ifndef _H_CRAY_H_
-#define _H_CRAT_H_
+#ifndef _CRAY_H_
+#define _CRAY_H_
+
 #include "common.h"
 
 //…‰œﬂ¿‡
@@ -18,4 +19,4 @@ public:
 	void set_Direction(const GVector3 & direction);
 	GVector3 get_Point(float t);
 };
-#endif _H_CRAY_H
+#endif 

@@ -1,5 +1,6 @@
 #include "OBJECT.h"
 #include<iostream>
+
 using namespace std;
 //一般物体类
 Object::Object()
@@ -82,6 +83,59 @@ GVector3 Sphere::get_normal(GVector3 point)
 	return (point - m_center);                //法线是球面上的该交点p和球心的c的差向量
 }
 
+//三角形类
+bool Triangle::InTriangle(const GVector3& orig, const GVector3& dir, float* t, float* u, float* v)
+{
+	// E1
+	GVector3 E1 = position[1] - position[0];
+
+	// E2
+	GVector3 E2 = position[2] - position[0];
+
+	// P
+	GVector3 P(dir.y*E2.z - dir.z*E2.y, dir.z*E2.x - dir.x*E2.z, dir.x*E2.y - dir.y*E2.x);
+
+	// determinant
+	float det = E1.dot(P);
+
+	// keep det > 0, modify T accordingly
+	GVector3 T;
+	if (det >0)
+	{
+		T = orig - position[0];
+	}
+	else
+	{
+		T = position[0] - orig;
+		det = -det;
+	}
+
+	// If determinant is near zero, ray lies in plane of triangle
+	if (det < 0.0001f)
+		return false;
+
+	*u = T.dot(P);
+	if (*u < 0.0f || *u > det)
+		return false;
+
+	// Q
+	GVector3 Q = T.cross(E1);
+
+	// Calculate v and make sure u + v <= 1
+	*v = dir.x*Q.x + dir.y*Q.y + dir.z*Q.z;;
+	if (*v < 0.0f || *u + *v > det)
+		return false;
+
+	// Calculate t, scale parameters, ray intersects triangle
+	*t = E2.dot(Q);
+
+	float fInvDet = 1.0f / det;
+	*t *= fInvDet;
+	*u *= fInvDet;
+	*v *= fInvDet;
+
+	return true;
+}
 INTERSECTION_TYPE  Sphere::is_intersected(Cray ray, float& distance)
 {
 	GVector3 v = ray.get_origin() - m_center;
@@ -171,6 +225,30 @@ GVector3 Triangle::get_color(GVector3 pos)
 	}
 }
 
+GVector3 Triangle::get_normal(GVector3 position)
+{
+	GVector3 p = position;
+	return m_normal;
+}
+
+INTERSECTION_TYPE Triangle::is_intersected(Cray ray, float& dist)
+{
+	float cos = DOT(m_normal, ray.get_direction());
+	if (cos != 0)
+	{
+		float t = 0.0, u = 0.0, v = 0.0;
+		if (InTriangle(ray.get_origin(), ray.get_direction(), &t, &u, &v))
+		{
+			if (t>0 && t < dist)
+			{
+				dist = t;
+				return INTERSECTED;
+			}
+		}
+	}
+	return MISS;
+}
+
 
 /*点光源类*/
 PointLight::PointLight()
@@ -247,18 +325,18 @@ int  Scene::loadScene(char *filename)
 	m_light = new PointLight[1500];
 	m_obj = new Object*[1500];
 	FILE *file = fopen(filename, "r");
-	int Number_of_objects;
-	fscanf(file, "%d", Number_of_objects);
+	int Number_of_objects=0;
+	fscanf(file, "%d", &Number_of_objects);//读取物体数
 	cout << "Number of objects:" << Number_of_objects << endl; //读取物体数
 	double ambient_light[3];
 	parse_doubles(file, "amb:", ambient_light);
 	amb_light = Color(ambient_light[0], ambient_light[1], ambient_light[2]); //读取amb
-
 	char type[25];
 	int i;
 	for (i = 0; i < Number_of_objects; i++)
 	{
-		fscanf(file, "%s", type);
+		fscanf(file, "%s\n", type);
+		printf("%s\n", type);
 		if (strcmp(type, "triangle") == 0)
 		{
 			cout << "Find triangle" << endl;
@@ -268,9 +346,9 @@ int  Scene::loadScene(char *filename)
 			{
 				parse_doubles(file, "pos:", pos[j]);
 				parse_doubles(file, "nor:", nor);
-				parse_doubles(file, "pos:", dif[j]);
+				parse_doubles(file, "dif:", dif[j]);
 				parse_doubles(file, "spe:", spe);
-				parse_doubles(file, "shi:", &shi);
+				parse_shininess(file, &shi);
 			}
 			m_obj[m_object_num] = new Triangle(GVector3(nor[0], nor[1], nor[2]), GVector3(pos[0][1], pos[0][2], pos[0][3]), GVector3(pos[1][1], pos[1][2], pos[1][3]), GVector3(pos[2][1], pos[2][2], pos[2][3]), GVector3(dif[0][1], dif[0][2], dif[0][3]), GVector3(dif[1][1], dif[1][2], dif[1][3]), GVector3(dif[2][1], dif[2][2], dif[2][3]), float(spe[0]), 1.0);//疑问1,最后为啥shi设为1.0,待解决
 			m_object_num++;
@@ -282,22 +360,23 @@ int  Scene::loadScene(char *filename)
 		}
 			else if (strcmp(type, "sphere")==0)
 			{
-				double pos[3], rad, dif[3], spe[3], shi[3];
+				double pos[3], rad, dif[3], spe[3], shi;
 				parse_doubles(file, "pos:", pos);
-				parse_doubles(file, "rad:", &rad);
+				parse_radious(file, &rad);
 				parse_doubles(file, "dif:", dif);
 				parse_doubles(file, "spe:", spe);
-				parse_doubles(file, "shi:", shi);
 				m_obj[m_object_num] = new Sphere(GVector3(pos[0], pos[1], pos[2]), rad, GVector3(dif[0], dif[1], dif[2]), spe[0], 1);//疑问2,最后为啥shi设为1.0,待解决
 				m_object_num++;
+				parse_shininess(file, &shi);
 				if (m_object_num >= 10000)
 				{
 					cout << "Too many spheres, you should increase MAX_SPHERES!\n" << endl;
 					exit(0);
 				}
 			}
-			else if (stricmp(type, "light") == 0)
+			else if (strcmp(type, "light") == 0)
 			{
+				cout<<"Find light"<<endl;
 				double pos[3], col[3];
 				parse_doubles(file, "pos:", pos);
 				parse_doubles(file, "col:", col);
@@ -323,7 +402,6 @@ void Scene::parse_check(char *expected, char *found)
 {
 	if (strcmp(expected, found))
 	{
-		char error[100];
 		printf("Expected '%s ' found '%s '\n", expected, found);
 		printf("Parse error, abnormal abortion\n");
 		exit(0);
@@ -336,7 +414,7 @@ void Scene::parse_doubles(FILE *file, char *check, double *p)
 	fscanf(file, "%s", temp);
 	parse_check(check, temp);
 	fscanf(file, "%lf %lf %lf", &p[0], &p[1], &p[2]);
-	printf("%s %lf %lf %lf", check,p[0], p[1], p[2]);
+	printf("%s %lf %lf %lf\n", check,p[0], p[1], p[2]);
 }
 
 void Scene::parse_radious(FILE *file, double *r)
@@ -344,7 +422,7 @@ void Scene::parse_radious(FILE *file, double *r)
 	char temp[100];
 	fscanf(file, "%s", temp);
 	parse_check("rad:", temp);
-	fscanf(file, "%lf", &r);
+	fscanf(file, "%lf", r);
 	printf("rad: %f\n", *r);
 }
 
@@ -352,7 +430,7 @@ void Scene::parse_shininess(FILE *file, double *shin)
 {
 	char temp[100];
 	fscanf(file, "%s", temp);
-	parse_check("shi", temp);
+	parse_check("shi:", temp);
 	fscanf(file, "%lf", shin);
 	printf("shi: %f\n", *shin);
 }

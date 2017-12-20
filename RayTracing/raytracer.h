@@ -6,11 +6,11 @@
 #include "object.h"
 
 //光线跟踪类
-class tracer
+class Tracer
 {
 public:
-	tracer();
-	~tracer();
+	Tracer();
+	~Tracer();
 	GVector3 eye;//眼睛位置
 	Scene* m_scene;//场景
 	GVector3 trace(Cray ray, int depth);	//光线跟踪函数，遍历场景中的所有物体，然后返回交点处的颜色

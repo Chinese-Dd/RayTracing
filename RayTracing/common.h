@@ -2,10 +2,10 @@
 #define _COMMON_H_
 
 #include <math.h>
-
+#include "stdlib.h"
 /*虚拟屏幕像素*/
-#define ImageWidth 640
-#define ImageHeight	480
+#define ImageWidth 1000
+#define ImageHeight	1000
 
 /*虚拟屏幕尺寸*/
 #define VIEW_WIDTH 8.0f
@@ -16,7 +16,7 @@
 #define JPG_PIXEL_HEIGHT	480
 
 #define TOTALDEPTH 2 /*光线递归深度*/
-#define INFINITY 1000000.0f /*无穷大*/
+#define BIG 1000000.0f /*无穷大*/
 #define SMALL 0.0001f/*无穷小*/
 #define DOT(A, B) (A.x*B.x+A.y*B.y+A.z*B.z) /*向量点乘*/
 
@@ -38,11 +38,12 @@ public:
 	void getInfo();
 	void set(float a_x, float a_y, float a_z);
 	float length();//向量长度
+	float GVector3::dot(GVector3 a_v);//向量的点积
 	float abs();//向量的绝对值,即向量的模
 	GVector3 negate();//向量反方向
 	GVector3 normalize();//向量单位化
 	float distance(const GVector3 &p);//2个向量之间的距离
-
+	GVector3 GVector3::cross(GVector3 a_v);//求2个向量的差积
 	friend GVector3 operator+ (const GVector3& v1, const GVector3& v2);/*两向量加法*/
 	friend GVector3 operator- (const GVector3& v1, const GVector3& v2);/*两向量减法,差向量的终点指向被减向量的终点*/
 	friend GVector3 operator* (const GVector3& v, float f);/*向量乘浮点数，向量的各分量分别乘浮点数*/

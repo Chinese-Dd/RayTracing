@@ -12,7 +12,7 @@ GVector3::GVector3()
 }
 
 //构造函数
-GVector3::GVector3(float G_x,float G_y,float G_z)
+GVector3::GVector3(float G_x, float G_y, float G_z)
 {
 	x = G_x;
 	y = G_y;
@@ -30,6 +30,11 @@ float GVector3::length()
 float GVector3::abs()
 {
 	return sqrt(x*x+y*y+z*z);
+}
+
+float GVector3::dot(GVector3 a_v)
+{
+	return x*a_v.x + y*a_v.y + z*a_v.z;
 }
 /*修改向量成员变量值*/
 void GVector3::set(float a_x, float a_y, float a_z)
@@ -85,6 +90,11 @@ GVector3 operator* (float f, const GVector3& v)
 GVector3 operator* (const GVector3& v1, GVector3& v2)
 {
 	return GVector3(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+}
+/*求2个向量的差积*/
+GVector3 GVector3::cross(GVector3 a_v)
+{
+	return GVector3(y*a_v.z - z*a_v.y, z*a_v.x - x*a_v.z, x*a_v.y - y*a_v.x);
 }
 
 bool operator== (const GVector3& v1, GVector3& v2)

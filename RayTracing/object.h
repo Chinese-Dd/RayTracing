@@ -96,7 +96,7 @@ public:
 	//文件分析函数
 	void parse_check(char *expected,char *found);
 	void parse_doubles(FILE *file, char *check, double *p);
-	void parse_radious(FILE *file,double *r);
+	void parse_radious(FILE *file, double *r);
 	void parse_shininess(FILE *file, double *shin);
 };
 
