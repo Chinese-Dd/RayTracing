@@ -8,8 +8,8 @@
 #define ImageHeight	1000
 
 /*ĞéÄâÆÁÄ»³ß´ç*/
-#define VIEW_WIDTH 8.0f
-#define VIEW_HEIGHT 8.0f
+#define VIEW_WIDTH 10.0f
+#define VIEW_HEIGHT 10.0f
 
 /*Í¼Æ¬ÏñËØ*/
 #define JPG_PIXEL_WIDTH  640

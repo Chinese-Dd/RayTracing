@@ -99,7 +99,6 @@ GVector3 Tracer::trace(Cray ray, int depth)
 		hit_color = hit_color + trace(Cray(point + refl*0.0001f, refl), ++dep);
 	}
 }
-	
 	return hit_color;/*没有相交时，是初始黑色；有相交时，是交点处的颜色*/
 }
 void Tracer::render()
@@ -113,33 +112,32 @@ void Tracer::render()
 	  float dy = (float)(VIEW_HEIGHT / ImageHeight);//试验2,是否需要static
 
 	/*虚拟屏幕初始坐标*/
-	float view_x = -VIEW_WIDTH / 2.0;  //坐标原点在中间,左上角为(-3,-3),右下角为(3,3)
+	float view_x = -VIEW_WIDTH / 2.0;  //坐标原点在中间,左上角为(-5,-5),右下角为(5,5)
 	float view_y = -VIEW_HEIGHT / 2.0;
-	float percent;
-	int a = 1;
 	int i, j;
 #pragma omp parallel for private(i,j,view_x,view_y) //下面的for循环要分成多个线程跑，每个线程都要保存变量括号中的拷贝
 	/*遍历所有像素点*/
-	for (i = 0; i < ImageWidth; i++)
+	for (i= 0; i < ImageHeight; i++)
 	{
-		for (j = 0; j < ImageHeight; j++)
+		for (j= 0; j< ImageWidth; j++)
 		{
-			view_x = -VIEW_WIDTH / 2.0 + dx*i;
-			view_y = -VIEW_HEIGHT / 2.0 + dy*j;
+			view_x = -VIEW_WIDTH / 2.0 + dx*j;
+			view_y = -VIEW_HEIGHT / 2.0 + dy*i;
 			GVector3 dir = GVector3(view_x, view_y, 0) - eye;/*眼睛到像素点的方向,即射线方向*/
 			dir.normalize();
 			Cray ray(eye, dir);/*创造从眼睛出发的射线*/
 			screen_color[i][j] = trace(ray, 1);
 		}
-		percent = (i *10)% 64;//等价于i%6.4
-		if (percent == 0.0f)
+		int m= i / 10;
+		int n = i % 10;
+		if (i != ImageHeight)
 		{
 			char t = 8;/*退格,\b的ASCII码,\b表示将输出位置左移一位*/
 			for (int k = 0; k<11; k++)
 			{
 				std::cout << t;
 			}
-			std::cout << "进度：" << a++ << "%";
+			std::cout << "进度：" <<m<< "." << n<< "%";
 		}
 	}
 }

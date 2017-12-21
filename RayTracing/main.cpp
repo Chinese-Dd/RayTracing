@@ -38,18 +38,6 @@ void display(void)
 	glFlush();
 }
 
-
-void reshape(int w, int h)
-{
-	glViewport(0, 0, w, h); //改变显示区域，起始位置为客户端窗口左下角（非坐标原点）
-	glMatrixMode(GL_PROJECTION); //修改投影矩阵
-	glLoadIdentity();//导入单位阵
-	gluPerspective(28.0, w / h, 1.0, 10.0);/*视角，实际窗口的纵横比即x/y，近截面，远截面*/
-	glMatrixMode(GL_MODELVIEW);//修改模型视图
-	glLoadIdentity();
-	gluLookAt(0.0, 0.0, 4.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);/*观察者位置.眼睛，物体，向上方向*/
-}
-
 /*初始化函数*/
 void init()
 {
@@ -59,7 +47,7 @@ void init()
 	tc.render();/*绘制*/
 	finish = clock();//获取结束时间
 	float time = (float)(finish - start) / 1000;
-	printf("\n渲染时间:%lf\n", time);
+	printf("\n渲染时间:%lfs\n", time);
 	tc.save_jpg();
 }
 
@@ -68,12 +56,11 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-	glutInitWindowSize(500, 500);
-	glutInitWindowPosition(300, 300);
+	glutInitWindowSize(600, 600);
+	glutInitWindowPosition(100, 100);
 	glutCreateWindow("RayTracing");
 	init();
 	glutDisplayFunc(display);
-	glutReshapeFunc(reshape);
 	glutMainLoop();
 	return 0;
 }

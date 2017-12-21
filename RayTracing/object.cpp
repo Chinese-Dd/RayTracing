@@ -350,7 +350,7 @@ int  Scene::loadScene(char *filename)
 				parse_doubles(file, "spe:", spe);
 				parse_shininess(file, &shi);
 			}
-			m_obj[m_object_num] = new Triangle(GVector3(nor[0], nor[1], nor[2]), GVector3(pos[0][1], pos[0][2], pos[0][3]), GVector3(pos[1][1], pos[1][2], pos[1][3]), GVector3(pos[2][1], pos[2][2], pos[2][3]), GVector3(dif[0][1], dif[0][2], dif[0][3]), GVector3(dif[1][1], dif[1][2], dif[1][3]), GVector3(dif[2][1], dif[2][2], dif[2][3]), float(spe[0]), 1.0);//疑问1,最后为啥shi设为1.0,待解决
+			m_obj[m_object_num] = new Triangle(GVector3(nor[0], nor[1], nor[2]), GVector3(pos[0][0], pos[0][1], pos[0][2]), GVector3(pos[1][0], pos[1][1], pos[1][2]), GVector3(pos[2][0], pos[2][1], pos[2][2]), GVector3(dif[0][0], dif[0][1], dif[0][2]), GVector3(dif[1][0], dif[1][1], dif[1][2]), GVector3(dif[2][0], dif[2][1], dif[2][2]), float(spe[0]), 1.0);//疑问1,最后为啥shi设为1.0,待解决
 			m_object_num++;
 			if (m_object_num >= 10000)
 			{
