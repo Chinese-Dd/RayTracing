@@ -128,8 +128,7 @@ void Tracer::render()
 			Cray ray(eye, dir);/*创造从眼睛出发的射线*/
 			screen_color[i][j] = trace(ray, 1);
 		}
-		int m= i / 10;
-		int n = i % 10;
+		
 		if (i != ImageHeight)
 		{
 			char t = 8;/*退格,\b的ASCII码,\b表示将输出位置左移一位*/
@@ -137,7 +136,7 @@ void Tracer::render()
 			{
 				std::cout << t;
 			}
-			std::cout << "进度：" <<m<< "." << n<< "%";
+			std::cout << "进度：" << i / 10 << "." << i % 10 << "%";
 		}
 	}
 }
