@@ -5,4 +5,4 @@ C++实现的简单光线追踪器.
 
 
 2017/12/23未解决的问题:
-采用OpenMP #pragma omp parallel for后输出 进度百分比有问题.不采用OpenMP #pragma omp parallel for,执行最后一个任务太消时.
+采用OpenMP #pragma omp parallel for后输出 进度百分比有问题.不采用OpenMP #pragma omp parallel for,执行最后一个任务太耗时.
